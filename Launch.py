@@ -8,14 +8,13 @@ import Ptax_operation as pto
 import read_data as rd
 import flager as filtr_flag
 
-
 # ---------------------------------------------------------------------------------------------------
 ## Define the today's date
 today = datetime.today().date()
 tday_dbyfmt = today.strftime("%d_%b_%Y")
 tday_dmyfmt = today.strftime("%d%m%Y")
 
-last = today - timedelta(days=1)
+last = today - timedelta(days=0)
 last_dmyfmt = last.strftime("%d%m%Y")
 
 # Fetching class object of property tax data process
@@ -54,7 +53,6 @@ def MasterData(inppath,outpth,paidamount_file,tax_data):
     # Master Data process using various inputs.
     tax_procedure.data_process(mappath,outpth, property_data, property_list_df, last_receiptdate_pkey, japti_flagger,
                                shasti_flags,bill_distributed_details,paidamount_ly,paidamount_ty)
-
 
 
 ## Start

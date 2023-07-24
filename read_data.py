@@ -86,8 +86,6 @@ class GatherData():
         unique_values = property_list_df.propertykey.unique()
         unique_pkey_df = pd.DataFrame({'propertykey': unique_values})
 
-        print("defined the unique property key using property bill data\n-----------------------------"
-                  "----------------------------------------------------------------------")
         return unique_pkey_df
 
     def read_paidamount_data(self,paidamount_file,last_dmyfmt):
