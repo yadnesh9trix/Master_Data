@@ -9,15 +9,18 @@ import read_data as rd
 import flager as filtr_flag
 
 # ---------------------------------------------------------------------------------------------------
-## Define the today's date
+# Define today's date
 today = datetime.today().date()
+
+# Date format's
 tday_dbyfmt = today.strftime("%d_%b_%Y")
 tday_dmyfmt = today.strftime("%d%m%Y")
 
-last = today - timedelta(days=0)
-last_dmyfmt = last.strftime("%d%m%Y")
+# Define the that day's date
+day = today - timedelta(days=0)
+day_dmyfmt = day.strftime("%d%m%Y")
 
-# Fetching class object of property tax data process
+# Fetching class object of property tax data process.
 ptprocess = pto.ptax_activity()
 read_data = rd.GatherData()
 tax_procedure = pto.tax_process()
@@ -39,7 +42,7 @@ def MasterData(inppath,outpth,paidamount_file,tax_data):
     unique_propertykey = read_data.identify_unique_key_property(property_list_df)
 
     # Excecuting the Today's Paid Amount Data.
-    paidamount_ty = read_data.read_paidamount_data(paidamount_file, last_dmyfmt)
+    paidamount_ty = read_data.read_paidamount_data(paidamount_file, day)
 
     # Excecuting the last year's Paid Amount Data.
     paidamount_ly = read_data.read_paidamount_LY(tax_data)
@@ -54,8 +57,7 @@ def MasterData(inppath,outpth,paidamount_file,tax_data):
     tax_procedure.data_process(mappath,outpth, property_data, property_list_df, last_receiptdate_pkey, japti_flagger,
                                shasti_flags,bill_distributed_details,paidamount_ly,paidamount_ty)
 
-
-## Start
+# Start
 if __name__ == '__main__':
     main_path = r"D:/"
     std_path = r"D:\Master Data/"

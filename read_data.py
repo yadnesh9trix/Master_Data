@@ -93,9 +93,9 @@ class GatherData():
 
         return unique_pkey_df
 
-    def read_paidamount_data(self,paidamount_file,last_dmyfmt):
+    def read_paidamount_data(self,paidamount_file,day):
         ## Read YTD data
-        ytddata = pd.read_excel(paidamount_file + f"Paidamount_list_{last_dmyfmt}.xlsx")
+        ytddata = pd.read_excel(paidamount_file + f"Paidamount_list_{day}.xlsx")
 
         ## Replace the property code values in ytd data
         ytddata["propertycode"] = ytddata["propertycode"].replace("1100900002.10.10", "1100900002.20")
