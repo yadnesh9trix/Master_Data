@@ -157,8 +157,7 @@ class tax_process():
             except:
                 pass
             df[col_name] = df[col_name].fillna(0000000000).astype("int64")
-            df[col_name] = np.where((df[col_name] > 5999999999)
-                                                              & (df[col_name] <= 9999999999),
+            df[col_name] = np.where((df[col_name] > 5999999999) & (df[col_name] <= 9999999999),
                                                               df[col_name], np.nan)
             return df
         #--------------------------------------------------------------------------------------------------

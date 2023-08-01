@@ -32,8 +32,11 @@ def MasterData(inppath,outpth,paidamount_file,tax_data):
         gatnamemap, splownmap, splaccmap, wrong_pid = read_data.mapping_data(mappath)
 
     # Defined the property bill details, receipt details and property list details.
-    property_data, property_receipt_df, shasti_flags, \
-                                        bill_distributed_details, japtinotice_data = read_data.execute_data(inppath,tax_data)
+    property_data,\
+            property_receipt_df, \
+                        shasti_flags, \
+                            bill_distributed_details,\
+                                        japtinotice_data = read_data.execute_data(inppath,tax_data)
 
     # Process Property deatails list.
     property_list_df = read_data.property_list(tax_data)
