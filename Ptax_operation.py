@@ -97,7 +97,6 @@ class tax_process():
         return no_of_receipt_generated
 
     def ptax_process(self,maxfyr_uniqpkey_df,plist_selected_data):
-        ###==================================================================================================================================
         maxfyr_uniqpkey_df.dropna(subset=['propertykey'], how='all', inplace=True)
 
         ## merge property list with max finacial yr & month
@@ -137,7 +136,7 @@ class tax_process():
                                                          'Use_Type', 'Construction_Type', 'Occupancy_Type', 'Subuse_Type',
                                                                 'zonename', 'gatname'])
 
-        # Rename columns 'arrearsdemand', 'currentdemand', and 'totaldemand'
+        # Rename in standard columns 'arrearsdemand', 'currentdemand', and 'totaldemand'
         property_data_list = property_data_list.rename(columns={'arrearsdemand':'Arrears',
                                                                 'currentdemand':'Current Bill',
                                                                 'totaldemand':'Total_Amount',
@@ -162,7 +161,7 @@ class tax_process():
                                                               & (df[col_name] <= 9999999999),
                                                               df[col_name], np.nan)
             return df
-
+        #--------------------------------------------------------------------------------------------------
         # Apply 'convert_mobilefmt' function to format 'own_mobile' column in 'property_data_lyreceipts'
         cleaned_property_data = convert_mobilefmt(property_data_lyreceipts,'own_mobile')
 
@@ -188,7 +187,6 @@ class tax_process():
         # Fill missing values in "last payment date" with values from "last receipts date"
         property_data_partiallypaid['last payment date'] = \
                                 property_data_partiallypaid['last payment date'].fillna(property_data_partiallypaid['last receipts date'])
-
         #---------------------------------------------------------------------------------------------------------------
         # Select only required columns and avoid sorting if not necessary
         identical_col_df = pd.DataFrame(property_data_partiallypaid, columns=['propertykey', 'propertycode', 'Zone', 'Gat', 'own_mobile',

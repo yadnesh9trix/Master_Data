@@ -11,34 +11,40 @@ today= datetime.now()
 
 
 class GatherData():
-    def __int__(self):
-        pass
 
     def execute_data(self,inppath,tax_data):
-        # Last updated data on 24th April 2023
-        property_data = pd.read_csv(inppath + "Demand Excluding Illegal 2023-24 27072023.csv",engine='pyarrow')
-        property_data.dropna(subset=['propertycode','propertykey'], how='all', inplace=True)
+
+        # Read property data
+        property_file = "Demand Excluding Illegal 2023-24 27072023.csv"
+        property_data = pd.read_csv(inppath + property_file, engine='pyarrow')
+        property_data.dropna(subset=['propertycode', 'propertykey'], how='all', inplace=True)
         property_data['propertycode'] = property_data['propertycode'].astype(float)
 
-        # Read the property receipt details of each property total receipts dates and paidmaount
-        property_receipt_df = pd.read_csv(tax_data + "Property_Receipt_25062023.csv",low_memory=False,encoding='utf-8-sig')
+        # Read property receipt details
+        property_receipt_file = "Property_Receipt_25062023.csv"
+        property_receipt_df = pd.read_csv(tax_data + property_receipt_file, low_memory=False, encoding='utf-8-sig')
 
-        illegal_fine_plist = pd.read_csv(tax_data + "Property_Shasti_list.csv")
-        illegal_fine_plist['shasti_Flag'] = 1
+        # Read Shasti propertykey data
+        shasti_file = "Property_Shasti_list.csv"
+        shasti_data = pd.read_csv(tax_data + shasti_file)
+        shasti_data['shasti_Flag'] = 1
 
-        bill_distributed_details = pd.read_csv(inppath + "Master_Bill_Distributed_Payments.csv")
+        # Read bill distributed details
+        bill_distributed_file = "Master_Bill_Distributed_Payments.csv"
+        bill_distributed_details = pd.read_csv(inppath + bill_distributed_file, encoding='utf-8')
         bill_distributed_details['propertycode'] = bill_distributed_details['propertycode'].astype(float)
 
-        japtinotice_data = pd.read_csv(tax_data + "Japti_data31072023.csv", encoding='utf-8')
+        # Read japtinotice data
+        japtinotice_file = "Japti_data31072023.csv"
+        japtinotice_data = pd.read_csv(tax_data + japtinotice_file, encoding='utf-8')
 
-        return property_data, property_receipt_df, illegal_fine_plist, bill_distributed_details, japtinotice_data
+        return property_data, property_receipt_df, shasti_data, bill_distributed_details, japtinotice_data
 
     def property_list(self,tax_data):
         # Read the property details data which is property parameters & details.
         property_list_df = pd.read_csv(tax_data + "Property_List_25062023.csv",low_memory=False)
         property_list_df = property_list_df[property_list_df['verified'] != 'N']
-        property_list_df.dropna(subset=['propertycode'], how='all', inplace=True)
-        property_list_df.dropna(subset=['propertykey'], how='all', inplace=True)
+        property_list_df.dropna(subset=['propertycode','propertykey'], how='all', inplace=True)
         property_list_df['propertykey'] = property_list_df['propertykey'].drop_duplicates()
         property_list_df['propertycode'] = property_list_df['propertycode'].drop_duplicates()
         property_list_df['propertycode'] = property_list_df['propertycode'].astype(float)
