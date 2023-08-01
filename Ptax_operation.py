@@ -9,7 +9,6 @@ import re
 
 read_data = rd.GatherData()
 
-
 class ptax_activity():
 
     def ptax_procedure(self,filter_propertybill_df,unique_pid_df):
@@ -34,10 +33,12 @@ class ptax_activity():
 
     def find_finyearmonth(self,property_data):
         #### find the financial year & Month
-        property_data['fin_year_r'] = np.where(property_data['fin_month_r'] <4,property_data['fin_year_r']-1,property_data['fin_year_r'])
-        property_data['fin_month_r'] = np.where(property_data['fin_month_r']<4,property_data['fin_month_r']+9,property_data['fin_month_r']-3)
-        print("Identied the financial year & month using receipt date column\n---------------------------------------------------------------"
-              "----------------------------------------------------------------------")
+        property_data['fin_year_r'] = np.where(property_data['fin_month_r'] <4,
+                                               property_data['fin_year_r']-1,
+                                               property_data['fin_year_r'])
+        property_data['fin_month_r'] = np.where(property_data['fin_month_r']<4,
+                                                property_data['fin_month_r']+9,
+                                                property_data['fin_month_r']-3)
 
         fin_yearmonth_propertydf = property_data.copy()
         return fin_yearmonth_propertydf
@@ -111,10 +112,11 @@ class tax_process():
 
         # Create a DataFrame 'plist_details_df' with columns from 'property_list_df'
         plist_details_df = pd.DataFrame(property_list_df,columns = ['propertykey', 'propertycode',
-                                       'zone', 'gat', 'usetypekey','assessmentdate',
+                                        'usetypekey','assessmentdate',
                                         'subusetypekey', 'constructiontypekey', 'occupancykey', 'own_mobile'])
+
         # Merge 'property_data' with 'plist_details_df' on 'propertycode'
-        property_data_list = property_data.merge(plist_details_df,on='propertycode',how='left')
+        property_data_list = property_data.merge(plist_details_df,on=['propertykey','propertycode'],how='left')
 
         # Load mapping data and assign to corresponding variables
         zonemap,usemap,construcmap,occpmap,subusemap,gatnamemap,splownmap,splaccmap,wrong_pid = read_data.mapping_data(mappath)
@@ -124,8 +126,8 @@ class tax_process():
         property_data_list['Construction_Type'] = property_data_list['constructiontypekey'].map(construcmap)
         property_data_list['Occupancy_Type'] = property_data_list['occupancykey'].map(occpmap)
         property_data_list['Subuse_Type'] = property_data_list['subusetypekey'].map(subusemap)
-        property_data_list['Zone'] = property_data_list['zone'].map(zonemap)
-        property_data_list['Gat'] = property_data_list['gat'].map(gatnamemap)
+        # property_data_list['Zone'] = property_data_list['zone'].map(zonemap)
+        # property_data_list['Gat'] = property_data_list['gat'].map(gatnamemap)
 
         # Create a new DataFrame 'property_data_list' with selected columns in the specified order.
         property_data_list = pd.DataFrame(property_data_list,columns=['propertycode', 'propertyname',
@@ -133,10 +135,14 @@ class tax_process():
                                                         'currentpaid', 'totalpaid', 'arrearsbal', 'currentbal', 'totalbal',
                                                          'propertykey','assessmentdate', 'own_mobile',
                                                          'Use_Type', 'Construction_Type', 'Occupancy_Type', 'Subuse_Type',
-                                                                'Zone', 'Gat'])
+                                                                'zonename', 'gatname'])
 
         # Rename columns 'arrearsdemand', 'currentdemand', and 'totaldemand'
-        property_data_list = property_data_list.rename(columns={'arrearsdemand':'Arrears', 'currentdemand':'Current Bill', 'totaldemand':'Total_Amount'})
+        property_data_list = property_data_list.rename(columns={'arrearsdemand':'Arrears',
+                                                                'currentdemand':'Current Bill',
+                                                                'totaldemand':'Total_Amount',
+                                                                'zonename':'Zone',
+                                                                'gatname':'Gat'})
 
         # Merge 'property_data_list' with 'shasti_flags' DataFrame on 'propertykey'
         # Merge 'property_data_shasti' with 'japti_flager' DataFrame on 'propertycode'
@@ -191,8 +197,7 @@ class tax_process():
                                                                            'last payment date','Quarter',
                                                                             'partiallypaid_Flag','paidLY_Flag','paidTY_Flag','shasti_Flag','last payment amount',
                                                                               'assessmentdate','Use_Type', 'Construction_Type','propertyname', 'propertyaddress',
-                                                                              'Japti_Flag','status',
-                                                                            'This Year Paidamount'])
+                                                                              'Japti_Flag','status', 'This Year Paidamount'])
         # Sorting the rows using propertykey column and replace the nan value with zeros in mentioned columns
         master_data = identical_col_df.sort_values('propertykey')
         master_data[['partiallypaid_Flag','paidLY_Flag','paidTY_Flag','shasti_Flag','Japti_Flag']] = \

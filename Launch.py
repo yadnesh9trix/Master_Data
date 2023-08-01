@@ -58,7 +58,7 @@ def MasterData(inppath,outpth,paidamount_file,tax_data):
 ## Start
 if __name__ == '__main__':
     main_path = r"D:/"
-    std_path = r"D:\Q2-Master Data/"
+    std_path = r"D:\Master Data/"
     inppath = std_path + "Input/"
     outpth = std_path + "Output/" + tday_dbyfmt + "/"
     paidamount_file = main_path + "Paidamount/"

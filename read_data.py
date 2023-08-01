@@ -16,8 +16,8 @@ class GatherData():
 
     def execute_data(self,inppath,tax_data):
         # Last updated data on 24th April 2023
-        property_data = pd.read_csv(inppath + "Demand Excluding Illegal_2023-24.csv",engine='pyarrow')
-        property_data.dropna(subset=['propertycode'], how='all', inplace=True)
+        property_data = pd.read_csv(inppath + "Demand Excluding Illegal 2023-24 27072023.csv",engine='pyarrow')
+        property_data.dropna(subset=['propertycode','propertykey'], how='all', inplace=True)
         property_data['propertycode'] = property_data['propertycode'].astype(float)
 
         # Read the property receipt details of each property total receipts dates and paidmaount
@@ -29,7 +29,7 @@ class GatherData():
         bill_distributed_details = pd.read_csv(inppath + "Master_Bill_Distributed_Payments.csv")
         bill_distributed_details['propertycode'] = bill_distributed_details['propertycode'].astype(float)
 
-        japtinotice_data = pd.read_csv(inppath + "Japti_data13072023.csv", encoding='utf-8')
+        japtinotice_data = pd.read_csv(tax_data + "Japti_data31072023.csv", encoding='utf-8')
 
         return property_data, property_receipt_df, illegal_fine_plist, bill_distributed_details, japtinotice_data
 
@@ -66,7 +66,6 @@ class GatherData():
         zonemap = dict(zip(zonetype['zonekey'],zonetype['eng_zonename']))
 
         gattype = pd.read_csv(mappath + "gat.csv")
-        # gattype['gatname_z'] = gattype['gatname'].astype(str) + "_" + gattype['zonetype'].astype(str)
         gattype['gatname_z'] = gattype['gatname'].astype(str)
         gatnamemap = dict(zip(gattype['gat'], gattype['gatname_z']))
 

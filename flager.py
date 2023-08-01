@@ -8,15 +8,10 @@ warnings.filterwarnings('ignore')
 
 def partiallypaid_Flag(after_typaid_added_df):
 
-    # non_zero_balanceamt = after_typaid_added_df[after_typaid_added_df['Total_Amount'] != 0]
-    # after_typaid_added_df['percentage'] = round(
-    #     (non_zero_balanceamt['This Year Paidamount'] / non_zero_balanceamt['Total_Amount']) * 100)
-
     # ## 0 - Fully Paid
     # ## 1 - Paritially Paid
-    # after_typaid_added_df['partiallypaid_Flag'] = np.where(after_typaid_added_df['percentage'] > 90, 0, 1)
     after_typaid_added_df['diff'] = after_typaid_added_df['This Year Paidamount'] - after_typaid_added_df['Total_Amount']
-    after_typaid_added_df['partiallypaid_Flag'] = np.where((after_typaid_added_df['diff'] <= -20), 1, 0)
+    after_typaid_added_df['partiallypaid_Flag'] = np.where((after_typaid_added_df['diff'] <= -1000), 1, 0)
 
     return after_typaid_added_df
 
@@ -29,11 +24,8 @@ def paid_ly_flag(filterdata_lessthan_2023):
 
 def japti_flag(japti_df,wrong_pid):
 
-    for i,j in zip(wrong_pid['Wrong_pid'],wrong_pid['pid']):
-        japti_df['propertycode'] = japti_df['propertycode'].str.replace(str(i), str(j))
-
-    japti_df['propertycode'] = japti_df['propertycode'].str.replace('1040705608.00.00', '1040705608.00') \
-        .str.replace('1150406630 .00', '1150406630.00').str.replace('`', '')
+    japti_df['propertycode'] = japti_df['propertycode'].replace('1040705608.00.00', '1040705608.00') \
+        .replace('1150406630 .00', '1150406630.00').replace('`', '')
 
     japti_df['propertycode'] = japti_df['propertycode'].astype(float)
     japti_flags = japti_df.copy()
