@@ -202,7 +202,6 @@ class tax_process():
         #---------------------------------------------------------------------------------------------------------------
         # Save the data to CSV (or you can uncomment the Excel save line if needed)
         master_data.to_csv(outpth + "/" + f"Master_Data.csv", index=False, encoding='utf-8-sig')
-        # master_data.to_excel(outpth + "/" + f"Q2_Master_Data.xlsx", index=False,sheet_name="Q2_Master")
 
         print("Master Data preparation completed successfully.")
 

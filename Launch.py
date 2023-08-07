@@ -17,8 +17,8 @@ tday_dbyfmt = today.strftime("%d_%b_%Y")
 tday_dmyfmt = today.strftime("%d%m%Y")
 
 # Define the that day's date
-day = today - timedelta(days=0)
-day_dmyfmt = day.strftime("%d%m%Y")
+day = today - timedelta(days=1)
+day_ddmmyyyy = day.strftime("%d%m%Y")
 
 # Fetching class object of property tax data process.
 ptprocess = pto.ptax_activity()
@@ -45,7 +45,7 @@ def MasterData(inppath,outpth,paidamount_file,tax_data):
     unique_propertykey = read_data.identify_unique_key_property(property_list_df)
 
     # Excecuting the Today's Paid Amount Data.
-    paidamount_ty = read_data.read_paidamount_data(paidamount_file, day)
+    paidamount_ty = read_data.read_paidamount_data(paidamount_file, day_ddmmyyyy)
 
     # Excecuting the last year's Paid Amount Data.
     paidamount_ly = read_data.read_paidamount_LY(tax_data)

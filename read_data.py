@@ -35,7 +35,7 @@ class GatherData():
         bill_distributed_details['propertycode'] = bill_distributed_details['propertycode'].astype(float)
 
         # Read japtinotice data
-        japtinotice_file = "Japti_data31072023.csv"
+        japtinotice_file = "Japti_data02082023.csv"
         japtinotice_data = pd.read_csv(tax_data + japtinotice_file, encoding='utf-8')
 
         return property_data, property_receipt_df, shasti_data, bill_distributed_details, japtinotice_data
