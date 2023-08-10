@@ -8,13 +8,14 @@ import Ptax_operation as pto
 import read_data as rd
 import flager as filtr_flag
 
-# ---------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------
 # Define today's date
 today = datetime.today().date()
 
 # Date format's
 tday_dbyfmt = today.strftime("%d_%b_%Y")
-tday_dmyfmt = today.strftime("%d%m%Y")
+# tday_dmyfmt = today.strftime("%d%m%Y%H%M%p")
+tday_dmyfmt = datetime.today().strftime("%d%m%Y")
 
 # Define the that day's date
 day = today - timedelta(days=1)
@@ -57,8 +58,8 @@ def MasterData(inppath,outpth,paidamount_file,tax_data):
     last_receiptdate_pkey =  tax_procedure.identify_property_receipt(property_receipt_df, unique_propertykey)
 
     # Master Data process using various inputs.
-    tax_procedure.data_process(mappath,outpth, property_data, property_list_df, last_receiptdate_pkey, japti_flagger,
-                               shasti_flags,bill_distributed_details,paidamount_ly,paidamount_ty)
+    tax_procedure.data_process(tday_dmyfmt,mappath,outpth, property_data, property_list_df, last_receiptdate_pkey,
+                               japti_flagger,shasti_flags,bill_distributed_details,paidamount_ly,paidamount_ty)
 
 # Start
 if __name__ == '__main__':
