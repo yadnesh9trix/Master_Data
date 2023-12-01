@@ -1,5 +1,4 @@
 import datetime
-
 import pandas as pd
 import datetime as dt
 import numpy as np
@@ -90,8 +89,7 @@ class tax_process():
         last_receiptdate_pkey = df_receiptdata.sort_values(['propertykey', 'receiptdate']).drop_duplicates('propertykey', keep='last')
         last_receiptdate_pkey = last_receiptdate_pkey.drop(columns=['propertybillkey','modeofpayment','honoureddate'])
         last_receiptdate_pkey.dropna(subset=['propertykey'], how='all', inplace=True)
-        last_receiptdate_pkey = last_receiptdate_pkey.rename(columns={'receiptdate':'last receipts date',
-                                                                      'paidamount':'last receipts amount'})
+        last_receiptdate_pkey = last_receiptdate_pkey.rename(columns={'receiptdate':'last receipts date','paidamount':'last receipts amount'})
 
         return last_receiptdate_pkey
 
@@ -131,17 +129,21 @@ class tax_process():
         return df
 
     def data_process(self,tday_dmyfmt,mappath, outpth, property_data, property_list_df, last_receiptdate_pkey,
-                     japti_flager, shasti_flags,bill_distributed_details,paidamount_ly,paidamount_ty):
+                     japti_flager, shasti_flags, bill_distributed_details, paidamount_ly, paidamount_ty):
 
         # Create a DataFrame 'plist_details_df' with columns from 'property_list_df'
-        plist_details_df = pd.DataFrame(property_list_df,columns = ['propertykey',
-                                        'propertycode',
-                                        'usetypekey','assessmentdate',
-                                        'subusetypekey', 'constructiontypekey',
-                                         'occupancykey', 'own_mobile'])
+        # plist_details_df = pd.DataFrame(property_list_df,columns = ['propertykey',
+        #                                 'propertycode',
+        #                                 'usetypekey','assessmentdate',
+        #                                 'subusetypekey', 'constructiontypekey',
+        #                                  'occupancykey', 'own_mobile'])
 
         # Merge 'property_data' with 'plist_details_df' on 'propertycode'
-        property_data_list = property_data.merge(plist_details_df,on=['propertykey','propertycode'],how='left')
+        # property_data_list = property_data.merge(plist_details_df,on=['propertykey','propertycode'],how='left')
+        property_data_list = property_data.copy()
+        property_data_list.dropna(subset=['usetypekey','assessmentdate',
+                                        'subusetypekey', 'constructiontypekey',
+                                         'occupancykey','zone','gat'], how='all', inplace=True)
 
         # Load mapping data and assign to corresponding variables
         zonemap,usemap,construcmap,occpmap,subusemap,gatnamemap,splownmap,splaccmap,wrong_pid = read_data.mapping_data(mappath)
@@ -151,8 +153,12 @@ class tax_process():
         property_data_list['Construction_Type'] = property_data_list['constructiontypekey'].map(construcmap)
         property_data_list['Occupancy_Type'] = property_data_list['occupancykey'].map(occpmap)
         property_data_list['Subuse_Type'] = property_data_list['subusetypekey'].map(subusemap)
-        # property_data_list['Zone'] = property_data_list['zone'].map(zonemap)
-        # property_data_list['Gat'] = property_data_list['gat'].map(gatnamemap)
+        property_data_list['zonename'] = property_data_list['zone'].map(zonemap)
+        property_data_list['gatname'] = property_data_list['gat'].map(gatnamemap)
+
+        property_data_list.dropna(subset=['propertycode'], how='all', inplace=True)
+        property_data_list.dropna(subset=['propertykey'], how='all', inplace=True)
+        property_data_list.dropna(subset=['zonename'], how='all', inplace=True)
 
         try:
             property_datadetails = self.find_ConcessionAmount(property_data_list)
@@ -161,25 +167,24 @@ class tax_process():
             property_datadetails['Total_concession'] = 0
 
         # Create a new DataFrame 'property_data_list' with selected columns in the specified order.
+        # property_data_list = pd.DataFrame(property_datadetails,columns=['propertycode', 'propertyname',
+        #                                              'propertyaddress','arrearsdemand', 'currentdemand', 'totaldemand', 'arrearspaid',
+        #                                                 'currentpaid', 'totalpaid', 'arrearsbal', 'currentbal', 'totalbal',
+        #                                                  'propertykey','assessmentdate', 'own_mobile',
+        #                                                  'Use_Type', 'Construction_Type', 'Occupancy_Type', 'Subuse_Type',
+        #                                                         'zonename', 'gatname','Total_concession','totalarea'])
         property_data_list = pd.DataFrame(property_datadetails,columns=['propertycode', 'propertyname',
-                                                     'propertyaddress','arrearsdemand', 'currentdemand', 'totaldemand', 'arrearspaid',
-                                                        'currentpaid', 'totalpaid', 'arrearsbal', 'currentbal', 'totalbal',
-                                                         'propertykey','assessmentdate', 'own_mobile',
+                                                     'propertyaddress', 'arrearsdemand', 'currentdemand', 'totaldemand',
+                                                         'propertykey', 'assessmentdate', 'own_mobile',
                                                          'Use_Type', 'Construction_Type', 'Occupancy_Type', 'Subuse_Type',
-                                                                'zonename', 'gatname','Total_concession'])
+                                                                'zonename', 'gatname', 'Total_concession', 'totalarea'])
 
         # Rename in standard columns 'arrearsdemand', 'currentdemand', and 'totaldemand'
-        try:
-            property_data_list = property_data_list.rename(columns={'arrearsdemand':'Arrears',
-                                                                'currentdemand':'Current Bill',
-                                                                'totaldemand':'Total_Amount',
-                                                                'zonename':'Zone',
-                                                                'gatname':'Gat'})
-        except:
-            property_data_list = property_data_list.rename(columns={'arrearsdemand': 'Arrears',
-                                                                    'currentdemand': 'Current Bill',
-                                                                    'totaldemand': 'Total_Amount',
-                                                                    })
+        property_data_list = property_data_list.rename(columns={'arrearsdemand':'Arrears',
+                                                            'currentdemand':'Current Bill',
+                                                            'totaldemand':'Total_Amount',
+                                                            'zonename':'Zone',
+                                                            'gatname':'Gat'})
 
 
         # Merge 'property_data_list' with 'shasti_flags' DataFrame on 'propertykey'
@@ -188,6 +193,9 @@ class tax_process():
         property_data_shasti = property_data_list.merge(shasti_flags,on='propertykey',how='left')
         property_data_japti = property_data_shasti.merge(japti_flager,on='propertycode',how='left')
         property_data_lyreceipts = property_data_japti.merge(last_receiptdate_pkey,on='propertykey',how='left')
+
+        property_data_lyreceipts.dropna(subset=['propertycode'], how='all', inplace=True)
+        property_data_lyreceipts.dropna(subset=['propertykey'], how='all', inplace=True)
 
         # Define a function 'convert_mobilefmt' to extract and format mobile numbers in a DataFrame column
         def convert_mobilefmt(df,col_name):
@@ -214,7 +222,7 @@ class tax_process():
         # Merge 'cleaned_propertydata_bills' with 'paidamount_ly' DataFrame on 'propertycode'
         # Merge 'property_onlylypaid' with 'paidamount_ty' DataFrame on 'propertycode'
         property_onlylypaid = cleaned_propertydata_bills.merge(paidamount_ly,on='propertycode',how='left')
-        property_typaid= property_onlylypaid.merge(paidamount_ty,on='propertycode',how='left')
+        property_typaid= property_onlylypaid.merge(paidamount_ty,on='propertycode',how='left').reset_index(drop=True)
 
         # Apply 'flager.partiallypaid_Flag' function to 'property_typaid' DataFrame and store the result in 'property_data_partiallypaid'
         property_data_partiallypaid = flager.partiallypaid_Flag(property_typaid)
@@ -235,6 +243,7 @@ class tax_process():
         master_df = self.finanacial_yr(property_data_partiallypaid, 'fin_year_ly', 'fin_month_ly')
         master_df['diff'] = datetime.datetime.today().year -  (master_df["fin_year_ly"] + 1)
         master_df["diff"]  = master_df["diff"].fillna(0).astype(str)
+
         # Extract and format the "Quarter" from the "last payment date" column using Q-Mar frequency
         master_df["Quarter"] = \
                         pd.PeriodIndex(master_df["last payment date"], freq="Q-Mar").strftime("Q%q")
@@ -248,13 +257,28 @@ class tax_process():
                                                                            'last payment date','Quarter',
                                                                             'partiallypaid_Flag','paidLY_Flag','paidTY_Flag','shasti_Flag','last payment amount',
                                                                               'assessmentdate','Use_Type', 'Construction_Type','propertyname', 'propertyaddress',
-                                                                              'Japti_Flag','status', 'This Year Paidamount','Total_concession','fin_year_ly'])
+                                                                              'Japti_Flag','status', 'This Year Paidamount','Total_concession','fin_year_ly','Subuse_Type','totalarea'])
         # Sorting the rows using propertykey column and replace the nan value with zeros in mentioned columns
-        master_data = identical_col_df.sort_values('propertykey')
+        master_data = identical_col_df.sort_values('propertykey').reset_index(drop=True)
         master_data[['partiallypaid_Flag','paidLY_Flag','paidTY_Flag','shasti_Flag','Japti_Flag']] = \
                     master_data[['partiallypaid_Flag','paidLY_Flag','paidTY_Flag','shasti_Flag','Japti_Flag']].fillna(0)
         #---------------------------------------------------------------------------------------------------------------
         # Save the data to CSV (or you can uncomment the Excel save line if needed)
-        master_data.to_csv(outpth + "/" + f"Master_Data({tday_dmyfmt}).csv", index=False, encoding='utf-8-sig')
+        df_cleaned_threshold = master_data.reset_index(drop=True)
+        # df_cleaned_threshold = master_data.dropna(axis=1, thresh=int((1 - 10 / 100) * len(master_df)))
+
+        df_cleaned_threshold.dropna(subset=['propertycode'], how='any', inplace=True)
+        df_cleaned_threshold.dropna(subset=['propertykey'], how='any', inplace=True)
+        df_cleaned_threshold['propertykey'] = df_cleaned_threshold['propertykey'].drop_duplicates()
+        df_cleaned_threshold['propertycode'] = df_cleaned_threshold['propertycode'].drop_duplicates()
+
+        # df_cleaned_threshold.fillna(0,inplace=True)
+        # master_data.to_csv(outpth + "/" + f"Master_Data({tday_dmyfmt}).csv",
+        #                    index=False, encoding='utf-8-sig',sep=',')
+
+        df_cleaned_threshold.to_excel(outpth + "/" + f"Master_Data({tday_dmyfmt}).xlsx", index=False)
+
+        # df_cleaned_threshold.to_csv(outpth + "/" + f"Master_Data({tday_dmyfmt}).csv",
+        #                    sep=',', encoding='utf-8', index=False)
         print("Master Data Pre-paration Completed Successfully.")
 

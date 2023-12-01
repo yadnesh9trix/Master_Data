@@ -10,10 +10,16 @@ def partiallypaid_Flag(after_typaid_added_df):
 
     # ## 0 - Fully Paid
     # ## 1 - Paritially Paid
-    after_typaid_added_df['diff'] = after_typaid_added_df['This Year Paidamount'] - after_typaid_added_df['Total_Amount']
-    after_typaid_added_df['partiallypaid_Flag'] = np.where((after_typaid_added_df['diff'] <= -1000), 1, 0)
+
+    # after_typaid_added_df['diff'] = after_typaid_added_df['This Year Paidamount'] - after_typaid_added_df['Total_Amount']
+    # after_typaid_added_df['partiallypaid_Flag'] = np.where((after_typaid_added_df['diff'] <= -1000), 1, 0)
+
+    after_typaid_added_df['diff'] = (after_typaid_added_df['This Year Paidamount'] - after_typaid_added_df[
+        'Arrears']) / 100
+    after_typaid_added_df['partiallypaid_Flag'] = np.where((after_typaid_added_df['diff'] <= 0.05) & (after_typaid_added_df['diff'] <= 85), 1, 0)
 
     return after_typaid_added_df
+
 
 def paid_ly_flag(filterdata_lessthan_2023):
     ## Paid in LY
@@ -25,7 +31,7 @@ def paid_ly_flag(filterdata_lessthan_2023):
 def japti_flag(japti_df,wrong_pid):
 
     japti_df['propertycode'] = japti_df['propertycode'].replace('1040705608.00.00', '1040705608.00') \
-        .replace('1150406630 .00', '1150406630.00').replace('`', '')
+        .replace('1150406630 .00', '1150406630.00').replace('1100900002.10.20', '1100900002.00').replace('`', '')
 
     japti_df['propertycode'] = japti_df['propertycode'].astype(float)
     japti_flags = japti_df.copy()
