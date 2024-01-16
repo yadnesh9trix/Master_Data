@@ -7,6 +7,7 @@ warnings.filterwarnings('ignore')
 import read_data as rd
 import flager
 import re
+import xlsxwriter
 
 read_data = rd.GatherData()
 
@@ -241,7 +242,11 @@ class tax_process():
         property_data_partiallypaid['fin_month_ly'] = property_data_partiallypaid['last payment date'].dt.month
 
         master_df = self.finanacial_yr(property_data_partiallypaid, 'fin_year_ly', 'fin_month_ly')
-        master_df['diff'] = datetime.datetime.today().year -  (master_df["fin_year_ly"] + 1)
+        # master_df['diff'] = datetime.datetime.today().year -  (master_df["fin_year_ly"] + 1)
+
+        years = 2023
+        master_df['diff'] = years -  (master_df["fin_year_ly"] + 1)
+
         master_df["diff"]  = master_df["diff"].fillna(0).astype(str)
 
         # Extract and format the "Quarter" from the "last payment date" column using Q-Mar frequency
@@ -251,13 +256,20 @@ class tax_process():
                                                           master_df["Quarter"], master_df["diff"].astype(str) + "_Year Defaulter")
         #---------------------------------------------------------------------------------------------------------------
         # Select only required columns and avoid sorting if not necessary
+        # identical_col_df = pd.DataFrame(master_df, columns=['propertykey', 'propertycode', 'Zone', 'Gat', 'own_mobile',
+        #                                                                  'Arrears', 'Current Bill', 'Total_Amount',
+        #                                                                   'propertyLat','propertyLong','visitDate',
+        #                                                                    'last payment date','Quarter',
+        #                                                                     'partiallypaid_Flag','paidLY_Flag','paidTY_Flag','shasti_Flag','last payment amount',
+        #                                                                       'assessmentdate','Use_Type', 'Construction_Type','propertyname', 'propertyaddress',
+        #                                                                       'Japti_Flag','status', 'This Year Paidamount','Total_concession','fin_year_ly','Subuse_Type','totalarea'])
         identical_col_df = pd.DataFrame(master_df, columns=['propertykey', 'propertycode', 'Zone', 'Gat', 'own_mobile',
                                                                          'Arrears', 'Current Bill', 'Total_Amount',
                                                                           'propertyLat','propertyLong','visitDate',
                                                                            'last payment date','Quarter',
                                                                             'partiallypaid_Flag','paidLY_Flag','paidTY_Flag','shasti_Flag','last payment amount',
                                                                               'assessmentdate','Use_Type', 'Construction_Type','propertyname', 'propertyaddress',
-                                                                              'Japti_Flag','status', 'This Year Paidamount','Total_concession','fin_year_ly','Subuse_Type','totalarea'])
+                                                                              'Japti_Flag','status', 'This Year Paidamount','modeofpayment','fin_year_ly','Subuse_Type','totalarea'])
         # Sorting the rows using propertykey column and replace the nan value with zeros in mentioned columns
         master_data = identical_col_df.sort_values('propertykey').reset_index(drop=True)
         master_data[['partiallypaid_Flag','paidLY_Flag','paidTY_Flag','shasti_Flag','Japti_Flag']] = \
@@ -282,3 +294,94 @@ class tax_process():
         #                    sep=',', encoding='utf-8', index=False)
         print("Master Data Pre-paration Completed Successfully.")
 
+        # df_cleaned_threshold1 = df_cleaned_threshold[df_cleaned_threshold["paidTY_Flag"] != 1]
+        #
+        # ids = ["फ्लॅट", "फलॅट", "अपार्टमेंट", "फलॉट", "हौ.", "सोसायटी", "फ्लॆट", "ऑफिस नं", "प्लॅट", "रेसेडेंन्सी",
+        #        "हौ.सो.","सोसा.","सोसायट","विंग","फ़्लॅट","उलॅट","मजला","FLAT","फ्लँट","फ्ल्ॉट","ए","सोसा","सोसा.,,"]
+        # dffilter =  df_cleaned_threshold1[df_cleaned_threshold1['Use_Type'] == "Residential"]
+        #
+        # selectedcolmns = pd.DataFrame(dffilter,
+        #                               columns=['propertykey', 'propertycode', 'Zone', 'Gat', 'Total_Amount',
+        #                                        'propertyname', 'propertyaddress'])
+        # # data_fil = selectedcolmns[selectedcolmns['propertyaddress'].isin([ids])]
+        # selectedcolmns['propertyaddress_TF'] = selectedcolmns['propertyaddress'].astype(str).apply(
+        #     lambda x: any(id in x for id in ids))
+        # truedf = selectedcolmns[selectedcolmns['propertyaddress_TF'] == True]
+        # falsedf = selectedcolmns[selectedcolmns['propertyaddress_TF'] == False]
+        # falsedf.to_csv(outpth+ "/" + f"Society Campaigns List.csv" )
+        #
+        # from fuzzywuzzy import fuzz
+        #
+        # # Function to compare addresses using fuzzy matching
+        # def is_address_similar(address1, address2, threshold=75):
+        #     return fuzz.token_set_ratio(address1, address2) >= threshold
+        #
+        # # Create a new column 'group' to identify groups of similar addresses
+        # truedf['group'] = None
+        # group_count = 1
+        #
+        # for i in range(1, len(truedf)):
+        #     current_address = truedf['propertyaddress'].iloc[i]
+        #     previous_address = truedf['propertyaddress'].iloc[i-1]
+        #
+        #     if is_address_similar(current_address, previous_address):
+        #         truedf['group'].iloc[i] = group_count
+        #     else:
+        #         group_count += 1
+        #         truedf['group'].iloc[i]= group_count
+        #
+        # # Save the DataFrame to Excel
+        # truedf.to_excel('output.xlsx', index=False)
+        #
+        # gatt = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
+        # lst = ['Akurdi', 'Bhosari', 'Dighi Bopkhel', 'MNP Bhavan', 'Nigdi Pradhikaran', 'Talvade', 'Chinchwad', 'Chikhali',
+        #        'Pimpri Nagar', 'Thergaon', 'Wakad', 'Kivle', 'Fugewadi Dapodi', 'Pimpri Waghere', 'Sangvi', 'Charholi', 'Moshi']
+        # truedf['Gat'] = truedf['Gat'].astype(int)
+        # for i in lst:
+        #     writer = pd.ExcelWriter(outpth + "/" + f"{i}-Society Campaigns List.xlsx", engine="xlsxwriter")
+        #     for j in gatt:
+        #         filterdata = truedf[(truedf['Zone'] == i) & (truedf['Gat'] == j)]
+        #         if len(filterdata) == 0:
+        #             pass
+        #         else:
+        #             # filterdata = filterdata.drop(columns=['Zone'])
+        #             filterdata.to_excel(writer, index=False, sheet_name=f"गट-क्र._({str(j)})")
+        #
+        #             # wb_length = len(filterdata)
+        #             # worksheet = writer.sheets[f"गट-क्र._({str(j)})"]
+        #
+        #             # rule = '"कोर्ट केस,कोर्ट केसस्टे,केंद्रीय सरकारमालमत्ता,राज्य सरकार मालमत्ता,महानगरपालिकेची मालमत्ता,रस्ता रुंदीकरण्यात पडलेली मालमत्ता,''दुबार मालमत्ता,मोकळी जमीन रद्द करणे,बंद कंपनी,पडीक/जीर्ण मालमत्ता,सापडत नसलेली मालमत्ता,BIFR/Liquidation,इतर,"'
+        #             # rule = '"Yes,No"'
+        #             # dropdown_range = f'R2:R{wb_length + 1}'
+        #             # worksheet.data_validation(dropdown_range, {'validate': 'list', 'source': rule})
+        #             # worksheet.freeze_panes(1, 3)
+        #             # workbook = writer.book
+        #             #
+        #             # worksheet.set_column('C1:O1', 13)
+        #             # # worksheet.set_column('D1:D1', 16)
+        #             # border_format = workbook.add_format({'border': 1,
+        #             #                                      'align': 'left',
+        #             #                                      'font_color': '#000000',
+        #             #                                      'font_size': 20})
+        #             # worksheet.conditional_format(f'A1:T{wb_length + 1}', {'type': 'cell',
+        #             #                                                       'criteria': '>=',
+        #             #                                                       'text_wrap': True,
+        #             #                                                       'value': 0,
+        #             #                                                       'format': border_format})
+        #             # worksheet.set_row(wb_length + 1, 28)
+        #             # red_fill = PatternFill(start_color='FF0000', end_color='FF0000', fill_type='solid')
+        #             # blue_fill = PatternFill(start_color='0000FF', end_color='0000FF', fill_type='solid')
+        #             #
+        #             # worksheet.conditional_format(f'I2:I{wb_length + 1}', {'type': 'cell',
+        #             #                                                       'criteria': '>=',
+        #             #                                                       'value': 400000,
+        #             #                                                       'format': workbook.add_format(
+        #             #                                                           {'bg_color': 'red',
+        #             #                                                            'font_color': 'white'})})
+        #             # worksheet.conditional_format(f'I2:I{wb_length + 1}', {'type': 'cell',
+        #             #                                                       'criteria': '<',
+        #             #                                                       'value': 400000,
+        #             #                                                       'format': workbook.add_format(
+        #             #                                                           {'bg_color': 'blue',
+        #             #                                                            'font_color': 'white'})})
+        #     writer.close()

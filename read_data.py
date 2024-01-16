@@ -120,11 +120,14 @@ class GatherData():
         ytddata['propertycode'] = ytddata['propertycode'].astype(float)
         ytddata.dropna(subset=['propertycode'], how='all', inplace=True)
         ytddata1 = ytddata.sort_values('receiptdate')
-        ytddata1 = ytddata1.groupby(['propertycode']).agg({'receiptdate': 'last', 'paidamount': 'sum'}).reset_index()
+        # ytddata1 = ytddata1.groupby(['propertycode']).agg({'receiptdate': 'last', 'paidamount': 'sum'}).reset_index()
+        ytddata1 = ytddata1.groupby(['propertycode']).agg({'modeofpayment':'last',
+                                                           'receiptdate': 'last',
+                                                           'paidamount': 'sum'}).reset_index()
 
         ytddata1 = ytddata1.rename(
             columns={'receiptdate': 'This Year Paiddate', 'paidamount': 'This Year Paidamount'})
-        ytddata1 = ytddata1[['propertycode', 'This Year Paiddate', 'This Year Paidamount']]
+        ytddata1 = ytddata1[['propertycode', 'This Year Paiddate', 'This Year Paidamount','modeofpayment']]
         ytddata1['paidTY_Flag'] = 1
         return ytddata1
 

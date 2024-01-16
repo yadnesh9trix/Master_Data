@@ -14,7 +14,7 @@ import yaml
 today = datetime.today().date()
 
 # Import config vars
-# path = "D:\Master Data/config/"
+# path = "D:\Master Data/config/"+9*+-
 with open('config.yml','r') as ymlfile:
     confgfile = yaml.safe_load(ymlfile)
 
@@ -24,7 +24,7 @@ tday_dbyfmt = today.strftime("%d_%b_%Y")
 tday_dmyfmt = datetime.today().strftime("%d%m%Y")
 
 # Define the that day's date
-day = today - timedelta(days=3)
+day = today - timedelta(days=1)
 # day = today - timedelta(days=confgfile['paidamount_day'])
 day_ddmmyyyy = day.strftime("%d%m%Y")
 
